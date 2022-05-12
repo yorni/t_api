@@ -4,7 +4,7 @@ const trade = require("../models/trade");
 
 //Get One
 router.get("/:ticker/:starttime/:endtime", getTrades, (req, res) => {
-  res.json(res.trades);
+  res.json({ arrayOfTrades: res.trades });
 });
 async function getTrades(req, res, next) {
   let tradesObject;

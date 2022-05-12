@@ -28,5 +28,5 @@ const depth = require("./routes/depth");
 app.use("/depth", depth);
 
 app.listen(port, () => {
-  console.log("We are live on " + port);
+  console.log("We are live on port: " + port);
 });
