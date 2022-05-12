@@ -12,8 +12,8 @@ async function getTrades(req, res, next) {
     tradesObject = await trade.find({
       ticker: req.params.ticker,
       time: {
-        $gt: Number(req.params.starttime),
-        $lt: Number(req.params.endtime),
+        $gte: Number(req.params.starttime),
+        $lte: Number(req.params.endtime),
       },
     });
 

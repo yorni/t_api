@@ -13,7 +13,7 @@ async function getDepth(req, res, next) {
     depthObject = await depth
       .find({
         ticker: req.params.ticker,
-        time: { $lt: Number(req.params.starttime) },
+        time: { $lte: Number(req.params.starttime) },
       })
       .sort({ time: -1 })
       .limit(1);
