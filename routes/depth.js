@@ -17,7 +17,7 @@ async function getDepth(req, res, next) {
       })
       .sort({ time: -1 })
       .limit(1);
-    if (depthObject == null) {
+    if (!depthObject[0]) {
       return res.status(404).json({ message: "Cannot find depthObject" });
     }
   } catch (err) {
@@ -28,7 +28,7 @@ async function getDepth(req, res, next) {
     asks: [],
     bids: [],
   };
-
+  console.log(depthObject);
   ////////////////
   let minBid = Number(Object.keys(depthObject.bids)[0]) / 1.05;
   let maxAsk = Number(Object.keys(depthObject.asks)[0]) * 1.05;
