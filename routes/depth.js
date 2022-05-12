@@ -23,7 +23,41 @@ async function getDepth(req, res, next) {
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
-  res.depth = depthObject;
+  ////////////////
+  depthRes = {
+    asks: [],
+    bids: [],
+  };
+
+  ////////////////
+  let minBid = Number(Object.keys(depthObject.bids)[0]) / 1.05;
+  let maxAsk = Number(Object.keys(depthObject.asks)[0]) * 1.05;
+  var BreakException = {};
+  try {
+    Object.keys(depthObject.bids).forEach((bid) => {
+      if (Number(bid) >= minBid) {
+        depthRes.bids.push([bid, depthRes.bids[bid]]);
+      } else {
+        throw BreakException;
+      }
+    });
+  } catch (e) {
+    if (e !== BreakException) throw e;
+  }
+
+  try {
+    Object.keys(depthObject.asks).forEach((ask) => {
+      if (Number(ask) <= maxAsk) {
+        depthRes.asks.push([ask, depthRes.asks[ask]]);
+      } else {
+        throw BreakException;
+      }
+    });
+  } catch (e) {
+    if (e !== BreakException) throw e;
+  }
+
+  res.depth = depthRes;
   next();
 }
 
