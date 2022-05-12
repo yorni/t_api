@@ -24,7 +24,7 @@ async function getTrades(req, res, next) {
     return res.status(500).json({ message: err.message });
   }
   let tradesArray = tradesObject.map(function (trade) {
-    return [trade.ticker, trade.time, trade.price, trade.volume];
+    return [trade.time, trade.price, trade.volume, trade.ticker];
   });
   res.trades = tradesArray;
   next();
