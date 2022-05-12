@@ -28,13 +28,13 @@ async function getDepth(req, res, next) {
     asks: [],
     bids: [],
   };
-  console.log(depthObject);
+
   ////////////////
-  let minBid = Number(Object.keys(depthObject.bids)[0]) / 1.05;
-  let maxAsk = Number(Object.keys(depthObject.asks)[0]) * 1.05;
+  let minBid = Number(Object.keys(depthObject[0].bids)[0]) / 1.05;
+  let maxAsk = Number(Object.keys(depthObject[0].asks)[0]) * 1.05;
   var BreakException = {};
   try {
-    Object.keys(depthObject.bids).forEach((bid) => {
+    Object.keys(depthObject[0].bids).forEach((bid) => {
       if (Number(bid) >= minBid) {
         depthRes.bids.push([bid, depthRes.bids[bid]]);
       } else {
@@ -46,7 +46,7 @@ async function getDepth(req, res, next) {
   }
 
   try {
-    Object.keys(depthObject.asks).forEach((ask) => {
+    Object.keys(depthObject[0].asks).forEach((ask) => {
       if (Number(ask) <= maxAsk) {
         depthRes.asks.push([ask, depthRes.asks[ask]]);
       } else {
