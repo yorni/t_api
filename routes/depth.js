@@ -122,6 +122,10 @@ async function getDepthSingleObject(req, res, next) {
     if (e !== BreakException) throw e;
   }
 
+  depthRes.sort(function (a, b) {
+    return Number[a[0]] - Number[b[0]];
+  });
+
   res.depth = depthRes;
   next();
 }
