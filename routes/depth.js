@@ -123,7 +123,7 @@ async function getDepthSingleObject(req, res, next) {
   }
 
   res.depth = depthRes.sort(function (a, b) {
-    return Number[a[0]] - Number[b[0]];
+    return Number(a[0]) - Number(b[0]);
   });
 
   next();
