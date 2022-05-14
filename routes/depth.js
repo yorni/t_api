@@ -51,7 +51,7 @@ async function getDepthList(req, res, next) {
   try {
     depthObject = await depth
       .find({
-        ticker: req.params.tcicker,
+        ticker: req.params.ticker,
         time: { $gt: Number(req.params.starttime) },
       })
       .limit(1000)
