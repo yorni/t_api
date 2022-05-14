@@ -54,8 +54,8 @@ async function getDepthList(req, res, next) {
         ticker: req.params.ticker,
         time: { $gt: Number(req.params.starttime) },
       })
-      .sort({ time: 1 })
-      .limit(1000);
+      .limit(1000)
+      .sort({ time: 1 });
     if (!depthObject[0]) {
       return res.status(404).json({ message: "Cannot find depthObject" });
     }
