@@ -116,9 +116,10 @@ async function getDepthSingleObjectToPercent(req, res, next) {
         ticker: req.params.ticker,
         time: { $lte: Number(req.params.starttime) },
       })
-      .limit(1)
+
       .sort({ time: -1 })
-      .lean();
+      .limit(1);
+    //.lean();
     if (!depthObject[0]) {
       return res.status(404).json({ message: "Cannot find depthObject" });
     }
