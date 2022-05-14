@@ -24,7 +24,16 @@ async function getTrades(req, res, next) {
     return res.status(500).json({ message: err.message });
   }
   let tradesArray = tradesObject.map(function (trade) {
-    return [trade.time, trade.price, trade.volume];
+    return [
+      trade.time,
+      trade.price,
+      trade.volume,
+      1, // All deals quantity
+      trade.buyerMaker ? 1 : 0, // BuyerMaker deals quantity
+      trade.buyerMaker ? 0 : 1, // ! BuyerMaker deals quantity
+      trade.buyerMaker ? trade.volume : 0, // BuyerMaker deals vol
+      trade.buyerMaker ? 0 : trade.volume, // ! BuyerMaker deals vol
+    ];
   });
   res.trades = tradesArray;
   next();
