@@ -51,7 +51,7 @@ async function getDepthList(req, res, next) {
   try {
     depthObject = await depth
       .find({
-        ticker: req.params.ticker,
+        ticker: req.params.tcicker,
         time: { $gt: Number(req.params.starttime) },
       })
       .limit(1000)
@@ -116,8 +116,9 @@ async function getDepthSingleObjectToPercent(req, res, next) {
         ticker: req.params.ticker,
         time: { $lte: Number(req.params.starttime) },
       })
+      .limit(1)
       .sort({ time: -1 })
-      .limit(1);
+      .lean();
     if (!depthObject[0]) {
       return res.status(404).json({ message: "Cannot find depthObject" });
     }
