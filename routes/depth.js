@@ -6,6 +6,9 @@ const depth = require("../models/depth");
 router.get("/:ticker/:starttime", getDepth, (req, res) => {
   res.json(res.depth);
 });
+router.get("/list/:ticker/:starttime", getDepthList, (req, res) => {
+  res.json(res.depth);
+});
 //Get One
 router.get("/so/:ticker/:starttime", getDepthSingleObject, (req, res) => {
   res.json(res.depth);
@@ -37,20 +40,48 @@ async function getDepth(req, res, next) {
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
-  ////////////////
+
+  res.depth = getDepthToPercent(5, depthObject[0]);
+  next();
+}
+
+async function getDepthList(req, res, next) {
+  let depthObject;
+  // console.log(req.params);
+  try {
+    depthObject = await depth
+      .find({
+        ticker: req.params.ticker,
+        time: { $gt: Number(req.params.starttime) },
+      })
+      .sort({ time: 1 })
+      .limit(1000);
+    if (!depthObject[0]) {
+      return res.status(404).json({ message: "Cannot find depthObject" });
+    }
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+  depthArray = [];
+  depthObject.forEach((deptElement) => {
+    depthArray.push(getDepthToPercent(0.5, deptElement));
+  });
+  res.depth = depthArray;
+  next();
+}
+
+function getDepthToPercent(percent, lDepth) {
   depthRes = {
     asks: [],
     bids: [],
   };
-
-  ////////////////
-  let minBid = Number(Object.keys(depthObject[0].bids)[0]) / 1.05;
-  let maxAsk = Number(Object.keys(depthObject[0].asks)[0]) * 1.05;
+  let minBid = Number(Object.keys(lDepth.bids)[0]) / (1 + percent / 100);
+  let maxAsk = Number(Object.keys(lDepth.asks)[0]) * (1 + percent / 100);
   var BreakException = {};
   try {
-    Object.keys(depthObject[0].bids).forEach((bid) => {
+    Object.keys(lDepth.bids).forEach((bid) => {
       if (Number(bid) >= minBid) {
-        depthRes.bids.push([bid, depthObject[0].bids[bid]]);
+        depthRes.bids.push([bid, lDepth.bids[bid]]);
       } else {
         throw BreakException;
       }
@@ -60,9 +91,9 @@ async function getDepth(req, res, next) {
   }
 
   try {
-    Object.keys(depthObject[0].asks).forEach((ask) => {
+    Object.keys(lDepth.asks).forEach((ask) => {
       if (Number(ask) <= maxAsk) {
-        depthRes.asks.push([ask, depthObject[0].asks[ask]]);
+        depthRes.asks.push([ask, lDepth.asks[ask]]);
       } else {
         throw BreakException;
       }
@@ -70,9 +101,7 @@ async function getDepth(req, res, next) {
   } catch (e) {
     if (e !== BreakException) throw e;
   }
-
-  res.depth = depthRes;
-  next();
+  return depthRes;
 }
 
 async function getDepthSingleObjectToPercent(req, res, next) {
