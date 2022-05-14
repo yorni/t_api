@@ -74,7 +74,9 @@ function getDepthToPercent(percent, lDepth) {
   depthRes = {
     asks: [],
     bids: [],
+    time: 0,
   };
+  depthRes.time = lDepth.time;
   let minBid = Number(Object.keys(lDepth.bids)[0]) / (1 + percent / 100);
   let maxAsk = Number(Object.keys(lDepth.asks)[0]) * (1 + percent / 100);
   var BreakException = {};
