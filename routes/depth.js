@@ -109,13 +109,18 @@ function getDepthToPercent(percent, lDepth) {
 
 async function getDepthSingleObjectToPercent(req, res, next) {
   let depthObject;
-  // console.log(req.params);
+  let conditionsToFind = {
+    ticker: req.params.ticker,
+  };
+
+  if (req.params.starttime != "0") {
+    conditionsToFind.time = {
+      $lte: Number(req.params.starttime),
+    };
+  }
   try {
     depthObject = await depth
-      .find({
-        ticker: req.params.ticker,
-        time: { $lte: Number(req.params.starttime) },
-      })
+      .find(conditionsToFind)
 
       .sort({ time: -1 })
       .limit(1);
@@ -177,12 +182,11 @@ async function getDepthSingleObjectToPercent(req, res, next) {
 
 async function getDepthSingleObject(req, res, next) {
   let depthObject;
-  console.log(req.params);
 
   let conditionsToFind = {
     ticker: req.params.ticker,
   };
-  console.log(req.params.starttime);
+
   if (req.params.starttime != "0") {
     conditionsToFind.time = {
       $lte: Number(req.params.starttime),
