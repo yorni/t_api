@@ -177,7 +177,7 @@ async function getDepthSingleObjectToPercent(req, res, next) {
 
 async function getDepthSingleObject(req, res, next) {
   let depthObject;
-  // console.log(req.params);
+  console.log(req.params);
 
   let conditionsToFind = {
     ticker: req.params.ticker,
