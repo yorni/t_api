@@ -182,7 +182,7 @@ async function getDepthSingleObject(req, res, next) {
   let conditionsToFind = {
     ticker: req.params.ticker,
   };
-
+  console.log(req.params.starttime);
   if (req.params.starttime != "0") {
     conditionsToFind.time = {
       $lte: Number(req.params.starttime),
