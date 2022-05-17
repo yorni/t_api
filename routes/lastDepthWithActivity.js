@@ -4,7 +4,7 @@ const depth = require("../models/depth");
 const trade = require("../models/trade");
 
 //Get One to percent
-router.get("/:ticker/:percent", getDepthWithActivity, (req, res) => {
+router.get("/:ticker/:percent/:endtime", getDepthWithActivity, (req, res) => {
   res.json(res.result);
 });
 
@@ -13,6 +13,11 @@ async function getDepthWithActivity(req, res, next) {
   let conditionsToFind = {
     ticker: req.params.ticker,
   };
+  if (req.params.endtime != "0") {
+    conditionsToFind.time = {
+      $lte: Number(req.params.endtime),
+    };
+  }
 
   try {
     depthObject = await depth
