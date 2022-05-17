@@ -143,10 +143,10 @@ async function getDepthWithActivity(req, res, next) {
   Object.keys(tradesRes).forEach((time) => {
     tradesResArr.push([
       time,
-      tradesRes[ketimeyTime].qtyMarketBuy,
-      tradesRes[ketimeyTime].qtyMarketSell,
-      tradesRes[ketimeyTime].volMarketBuy,
-      tradesRes[ketimeyTime].volMarketSell,
+      tradesRes[time].qtyMarketBuy,
+      tradesRes[time].qtyMarketSell,
+      tradesRes[time].volMarketBuy,
+      tradesRes[time].volMarketSell,
     ]);
   });
 
