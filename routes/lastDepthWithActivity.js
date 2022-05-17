@@ -91,33 +91,34 @@ async function getDepthWithActivity(req, res, next) {
   tradesPerPeriodCumulative = {};
   tradesPerPeriod.forEach((trade) => {
     keyTime = String(trade.creationTime);
-    if (keyTime in tradesPerPeriodCumulative) {
-      if (tradesPerPeriodCumulative[keyTime].buyerMaker != trade.buyerMaker) {
-        console.log("Different buyerMaker value. Creation time: " + keyTime);
-      }
-      tradesPerPeriodCumulative[keyTime].volume =
-        tradesPerPeriodCumulative[keyTime].volume + trade.volume;
-    } else {
+    if (!(keyTime in tradesPerPeriodCumulative)) {
       tradesPerPeriodCumulative[keyTime] = {
-        buyerMaker: trade.buyerMaker,
-        volume: trade.volume,
+        volumeBuy: 0,
+        volumeSell: 0,
       };
+
+      if (trade.buyerMaker) {
+        tradesPerPeriodCumulative[keyTime].volumeSell =
+          tradesPerPeriodCumulative[keyTime].volumeSell + trade.volume;
+      } else {
+        tradesPerPeriodCumulative[keyTime].volumeBuy =
+          tradesPerPeriodCumulative[keyTime].volumeBuy + trade.volume;
+      }
     }
   });
 
   Object.keys(tradesPerPeriodCumulative).forEach((creationTimeKey) => {
     keyTime = creationTimeKey.slice(0, -3);
+    qtyMarketBuy = 0;
+    qtyMarketSell = 0;
+    volMarketBuy = tradesPerPeriodCumulative[creationTimeKey].volumeBuy;
+    volMarketSell = tradesPerPeriodCumulative[creationTimeKey].volumeSell;
 
-    if (tradesPerPeriodCumulative[creationTimeKey].buyerMaker) {
-      qtyMarketBuy = 0;
-      qtyMarketSell = 1;
-      volMarketBuy = 0;
-      volMarketSell = tradesPerPeriodCumulative[creationTimeKey].volume;
-    } else {
+    if (volMarketBuy != 0) {
       qtyMarketBuy = 1;
-      qtyMarketSell = 0;
-      volMarketBuy = tradesPerPeriodCumulative[creationTimeKey].volume;
-      volMarketSell = 0;
+    }
+    if (volMarketSell != 0) {
+      qtyMarketSell = 1;
     }
 
     if (!(keyTime in tradesRes)) {
