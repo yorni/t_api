@@ -26,6 +26,8 @@ const trades = require("./routes/trades");
 app.use("/trades", trades);
 const depth = require("./routes/depth");
 app.use("/depth", depth);
+const la = require("./routes/lastDepthWithActivity");
+app.use("/la", la);
 
 app.listen(port, () => {
   console.log("We are live on port: " + port);
