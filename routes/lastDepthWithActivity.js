@@ -120,7 +120,7 @@ async function getDepthWithActivity(req, res, next) {
       volMarketSell = 0;
     }
 
-    if (!keyTime in tradesRes) {
+    if (!(keyTime in tradesRes)) {
       tradesRes[keyTime] = {
         qtyMarketBuy: 0,
         qtyMarketSell: 0,
