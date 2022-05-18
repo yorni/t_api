@@ -97,9 +97,12 @@ async function getDepthWithActivity(req, res, next) {
         maxVal = marketAsk * 100 + (i + 1) / 10;
       }
     }
+    console.log(minVal, maxVal);
 
     depthRes.forEach((element) => {
+      console.log(element[0]);
       if (Number(element[0]) >= minVal && Number(element[0]) < maxVal) {
+        console.log(element[0]);
         objectWithPercents[String(i)].bid =
           objectWithPercents[String(i)].bid + element[1];
         objectWithPercents[String(i)].ask =
