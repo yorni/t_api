@@ -89,12 +89,12 @@ async function getDepthWithActivity(req, res, next) {
   for (let i = -(percent * 10); i < percent * 10; i = i + 1) {
     objectWithPercents[String(i)] = { bid: 0, ask: 0 };
     if (i < 0) {
-      minVal = marketBid * 100 + i / 10;
-      maxVal = marketBid * 100 + (i + 1) / 10;
+      minVal = (marketBid * (100 + i / 10)) / 100;
+      maxVal = (marketBid * (100 + (i + 1) / 10)) / 100;
     } else {
       {
-        minVal = marketAsk * 100 + i / 10;
-        maxVal = marketAsk * 100 + (i + 1) / 10;
+        minVal = (marketAsk * (100 + i / 10)) / 100;
+        maxVal = (marketAsk * (100 + (i + 1) / 10)) / 100;
       }
     }
     console.log(minVal, maxVal);
