@@ -8,6 +8,15 @@ router.get("/:ticker/:percent/:endtime", getDepthWithActivity, (req, res) => {
   res.json(res.result);
 });
 
+//Get One to percent
+router.get(
+  "/:ticker/:percent/:endtime/:tradesonly",
+  getDepthWithActivity,
+  (req, res) => {
+    res.json(res.result);
+  }
+);
+
 async function getDepthWithActivity(req, res, next) {
   let depthObject;
   let conditionsToFind = {
@@ -18,72 +27,74 @@ async function getDepthWithActivity(req, res, next) {
       $lte: Number(req.params.endtime),
     };
   }
-
-  try {
-    depthObject = await depth
-      .find(conditionsToFind)
-      .sort({ time: -1 })
-      .limit(1);
-    //.lean();
-    if (!depthObject[0]) {
-      return res.status(404).json({ message: "Cannot find depthObject" });
-    }
-  } catch (err) {
-    return res.status(500).json({ message: err.message });
-  }
-
-  let tradesTime = depthObject[0].time;
-  conditionsToFind = {
-    ticker: req.params.ticker,
-    time: {
-      $gte: tradesTime - 60000,
-      $lte: tradesTime,
-    },
-  };
-
   ////////////////
-  depthRes = [];
-
-  ////////////////
-  let percent = req.params.percent;
-  let minBid =
-    Number(Object.keys(depthObject[0].bids)[0]) / (1 + percent / 100);
-  let maxAsk =
-    Number(Object.keys(depthObject[0].asks)[0]) * (1 + percent / 100);
-  var BreakException = {};
-  try {
-    Object.keys(depthObject[0].bids).forEach((bid) => {
-      if (Number(bid) >= minBid) {
-        lBid = depthObject[0].bids[bid];
-        lAsk = 0;
-        if (depthObject[0].asks[bid]) {
-          lAsk = depthObject[0].asks[bid];
-          delete depthObject[0].asks[bid];
-        }
-        depthRes.push([bid, lBid, lAsk]);
-      } else {
-        throw BreakException;
-      }
-    });
-  } catch (e) {
-    if (e !== BreakException) throw e;
-  }
-
-  try {
-    Object.keys(depthObject[0].asks).forEach((ask) => {
-      if (Number(ask) <= maxAsk) {
-        lBid = 0;
-        lAsk = depthObject[0].asks[ask];
-        depthRes.push([ask, lBid, lAsk]);
-      } else {
-        throw BreakException;
-      }
-    });
-  } catch (e) {
-    if (e !== BreakException) throw e;
-  }
-
+  let depthRes = [];
   let tradesRes = {};
+
+  ////////////////
+
+  if (!req.params.tradesonly) {
+    try {
+      depthObject = await depth
+        .find(conditionsToFind)
+        .sort({ time: -1 })
+        .limit(1);
+      //.lean();
+      if (!depthObject[0]) {
+        return res.status(404).json({ message: "Cannot find depthObject" });
+      }
+    } catch (err) {
+      return res.status(500).json({ message: err.message });
+    }
+
+    let tradesTime = depthObject[0].time;
+    conditionsToFind = {
+      ticker: req.params.ticker,
+      time: {
+        $gte: tradesTime - 60000,
+        $lte: tradesTime,
+      },
+    };
+
+    let percent = req.params.percent;
+    let minBid =
+      Number(Object.keys(depthObject[0].bids)[0]) / (1 + percent / 100);
+    let maxAsk =
+      Number(Object.keys(depthObject[0].asks)[0]) * (1 + percent / 100);
+    var BreakException = {};
+    try {
+      Object.keys(depthObject[0].bids).forEach((bid) => {
+        if (Number(bid) >= minBid) {
+          lBid = depthObject[0].bids[bid];
+          lAsk = 0;
+          if (depthObject[0].asks[bid]) {
+            lAsk = depthObject[0].asks[bid];
+            delete depthObject[0].asks[bid];
+          }
+          depthRes.push([bid, lBid, lAsk]);
+        } else {
+          throw BreakException;
+        }
+      });
+    } catch (e) {
+      if (e !== BreakException) throw e;
+    }
+
+    try {
+      Object.keys(depthObject[0].asks).forEach((ask) => {
+        if (Number(ask) <= maxAsk) {
+          lBid = 0;
+          lAsk = depthObject[0].asks[ask];
+          depthRes.push([ask, lBid, lAsk]);
+        } else {
+          throw BreakException;
+        }
+      });
+    } catch (e) {
+      if (e !== BreakException) throw e;
+    }
+  }
+
   try {
     tradesPerPeriod = await trade.find(conditionsToFind);
     if (!tradesPerPeriod[0]) {
