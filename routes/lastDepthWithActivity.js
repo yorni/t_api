@@ -3,12 +3,11 @@ const router = express.Router();
 const depth = require("../models/depth");
 const trade = require("../models/trade");
 
-//Get One to percent
-router.get("/:ticker/:percent/:endtime", getDepthWithActivity, (req, res) => {
+router.get("/activity/:ticker/:endtime", getActivity, (req, res) => {
   res.json(res.result);
 });
 //Get One to percent
-router.get("/activity/:ticker/:endtime", getActivity, (req, res) => {
+router.get("/:ticker/:percent/:endtime", getDepthWithActivity, (req, res) => {
   res.json(res.result);
 });
 
