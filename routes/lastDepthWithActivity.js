@@ -46,17 +46,16 @@ async function getDepthWithActivity(req, res, next) {
 
   ////////////////
   depthRes = [];
-
   ////////////////
   let percent = req.params.percent;
-  let minBid =
-    Number(Object.keys(depthObject[0].bids)[0]) / (1 + percent / 100);
-  let maxAsk =
-    Number(Object.keys(depthObject[0].asks)[0]) * (1 + percent / 100);
+  let multiplier = 1 + percent / 100;
+  let divider = 1 - percent / 100;
+  let marketBid = Number(Object.keys(depthObject[0].bids)[0]);
+  let marketAsk = Number(Object.keys(depthObject[0].asks)[0]);
   var BreakException = {};
   try {
     Object.keys(depthObject[0].bids).forEach((bid) => {
-      if (Number(bid) >= minBid) {
+      if (Number(bid) >= marketBid * divider) {
         lBid = depthObject[0].bids[bid];
         lAsk = 0;
         if (depthObject[0].asks[bid]) {
@@ -74,7 +73,7 @@ async function getDepthWithActivity(req, res, next) {
 
   try {
     Object.keys(depthObject[0].asks).forEach((ask) => {
-      if (Number(ask) <= maxAsk) {
+      if (Number(ask) <= marketAsk * multiplier) {
         lBid = 0;
         lAsk = depthObject[0].asks[ask];
         depthRes.push([ask, lBid, lAsk]);
@@ -85,6 +84,38 @@ async function getDepthWithActivity(req, res, next) {
   } catch (e) {
     if (e !== BreakException) throw e;
   }
+
+  let objectWithPercents = {};
+  for (let i = -(percent * 10); i < percent * 10; i = i + 1) {
+    objectWithPercents[String(i)] = { bid: 0, ask: 0 };
+    if (i < 0) {
+      minVal = marketBid * 100 + i / 10;
+      maxVal = marketBid * 100 + (i + 1) / 10;
+    } else {
+      {
+        minVal = marketAsk * 100 + i / 10;
+        maxVal = marketAsk * 100 + (i + 1) / 10;
+      }
+    }
+
+    depthRes.forEach((element) => {
+      if (element[0] >= minVal && element[0] < maxVal) {
+        objectWithPercents[String(i)].bid =
+          objectWithPercents[String(i)].bid + element[1];
+        objectWithPercents[String(i)].ask =
+          objectWithPercents[String(i)].ask + element[2];
+      }
+    });
+  }
+
+  depthRes = [];
+  Object.keys(objectWithPercents).forEach((key) => {
+    depthRes.push([
+      key,
+      objectWithPercents[key].bid,
+      objectWithPercents[key].ask,
+    ]);
+  });
 
   let tradesRes = {};
   try {
