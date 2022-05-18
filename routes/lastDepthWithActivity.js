@@ -99,7 +99,7 @@ async function getDepthWithActivity(req, res, next) {
     }
 
     depthRes.forEach((element) => {
-      if (element[0] >= minVal && element[0] < maxVal) {
+      if (Number(element[0]) >= minVal && Number(element[0]) < maxVal) {
         objectWithPercents[String(i)].bid =
           objectWithPercents[String(i)].bid + element[1];
         objectWithPercents[String(i)].ask =
