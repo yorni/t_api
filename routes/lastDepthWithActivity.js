@@ -195,7 +195,7 @@ async function getDepthWithActivity(req, res, next) {
     tradesObject = await trade.find({
       ticker: req.params.ticker,
       time: {
-        $gte: tradesTime - 10000,
+        $gte: tradesTime - 60000,
         $lte: tradesTime,
       },
     });
