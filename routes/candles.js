@@ -27,9 +27,9 @@ async function getTrades(req, res, next) {
     return [
       candle.time,
       candle.o,
-      candle.c,
       candle.h,
       candle.l,
+      candle.c,
       candle.v,
       candle.q - candle.mq,
       candle.mq,
