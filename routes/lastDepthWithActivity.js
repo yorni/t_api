@@ -83,7 +83,7 @@ async function getDepthWithActivity(req, res, next) {
   conditionsToFind = {
     ticker: req.params.ticker,
     time: {
-      $gte: tradesTime - 60000,
+      $gte: tradesTime - 600000,
       $lte: tradesTime,
     },
   };
