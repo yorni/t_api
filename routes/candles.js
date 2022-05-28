@@ -37,8 +37,8 @@ async function getTrades(req, res, next) {
       candle.mv, //maker volume/market sell
     ];
   });
-  tradesArray = tradesArray.filter((candle) => candle.o > 0);
-  res.trades = tradesArray;
+
+  res.trades = tradesArray.filter((candle) => candle[1] > 0);
   next();
 }
 
