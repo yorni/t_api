@@ -90,7 +90,7 @@ async function getDepthWithActivity(req, res, next) {
 
   try {
     candlesPerPeriod = await candle.find(conditionsToFind);
-    if (!tradesPerPeriod[0]) {
+    if (!candlesPerPeriod[0]) {
       return res
         .status(404)
         .json({ message: "Cannot find candles per period" });
