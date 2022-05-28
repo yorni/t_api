@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const depth = require("../models/depth");
 const trade = require("../models/trade");
+const candle = require("../models/candle");
 
 router.get("/activity/:ticker/:endtime", getActivity, (req, res) => {
   res.json(res.result);
@@ -23,44 +24,37 @@ async function getDepthWithActivity(req, res, next) {
   }
 
   try {
-    depthObject = await depth
+    lastCandle = await candle
       .find(conditionsToFind)
       .sort({ time: -1 })
       .limit(1);
     //.lean();
     if (!depthObject[0]) {
-      return res.status(404).json({ message: "Cannot find depthObject" });
+      return res.status(404).json({ message: "Cannot find candle" });
     }
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
 
-  let tradesTime = depthObject[0].time;
-  conditionsToFind = {
-    ticker: req.params.ticker,
-    time: {
-      $gte: tradesTime - 60000,
-      $lte: tradesTime,
-    },
-  };
+  let percent = req.params.percent;
+  let multiplier = 1 + percent / 100;
+  let divider = 1 - percent / 100;
+  let marketBid = lastCandle[0].lastBid;
+  let marketAsk = lastCandle[0].lastAsk;
 
   ////////////////
   depthRes = [];
   ////////////////
-  let percent = req.params.percent;
-  let multiplier = 1 + percent / 100;
-  let divider = 1 - percent / 100;
-  let marketBid = Number(Object.keys(depthObject[0].bids)[0]);
-  let marketAsk = Number(Object.keys(depthObject[0].asks)[0]);
+
   var BreakException = {};
   try {
-    Object.keys(depthObject[0].bids).forEach((bid) => {
+    Object.keys(lastCandle[0].bids).forEach((bid) => {
       if (Number(bid) >= marketBid * divider) {
-        lBid = depthObject[0].bids[bid];
+        lBid = lastCandle[0].bids[bid];
         lAsk = 0;
-        if (depthObject[0].asks[bid]) {
-          lAsk = depthObject[0].asks[bid];
-          delete depthObject[0].asks[bid];
+        if (lastCandle[0].asks[bid]) {
+          lAsk = lastCandle[0].asks[bid];
+          delete lastCandle[0].asks[bid];
         }
         depthRes.push([bid, lBid, lAsk]);
       } else {
@@ -72,10 +66,10 @@ async function getDepthWithActivity(req, res, next) {
   }
 
   try {
-    Object.keys(depthObject[0].asks).forEach((ask) => {
+    Object.keys(lastCandle[0].asks).forEach((ask) => {
       if (Number(ask) <= marketAsk * multiplier) {
         lBid = 0;
-        lAsk = depthObject[0].asks[ask];
+        lAsk = lastCandle[0].asks[ask];
         depthRes.push([ask, lBid, lAsk]);
       } else {
         throw BreakException;
@@ -85,138 +79,40 @@ async function getDepthWithActivity(req, res, next) {
     if (e !== BreakException) throw e;
   }
 
-  // let objectWithPercents = {};
-  // for (let i = -(percent * 10); i < percent * 10; i = i + 1) {
-  //   objectWithPercents[String(i)] = { bid: 0, ask: 0 };
-  //   if (i < 0) {
-  //     minVal = (marketBid * (100 + i / 10)) / 100;
-  //     maxVal = (marketBid * (100 + (i + 1) / 10)) / 100;
-  //   } else {
-  //     {
-  //       minVal = (marketAsk * (100 + i / 10)) / 100;
-  //       maxVal = (marketAsk * (100 + (i + 1) / 10)) / 100;
-  //     }
-  //   }
+  let tradesTime = lastCandle[0].time;
+  conditionsToFind = {
+    ticker: req.params.ticker,
+    time: {
+      $gte: tradesTime - 60000,
+      $lte: tradesTime,
+    },
+  };
 
-  //   depthRes.forEach((element) => {
-  //     if (Number(element[0]) >= minVal && Number(element[0]) < maxVal) {
-  //       objectWithPercents[String(i)].bid =
-  //         objectWithPercents[String(i)].bid + element[1];
-  //       objectWithPercents[String(i)].ask =
-  //         objectWithPercents[String(i)].ask + element[2];
-  //     }
-  //   });
-  // }
-
-  // depthRes = [];
-  // Object.keys(objectWithPercents).forEach((key) => {
-  //   depthRes.push([
-  //     key,
-  //     objectWithPercents[key].bid,
-  //     objectWithPercents[key].ask,
-  //   ]);
-  // });
-
-  let tradesRes = {};
   try {
-    tradesPerPeriod = await trade.find(conditionsToFind);
+    candlesPerPeriod = await candle.find(conditionsToFind);
     if (!tradesPerPeriod[0]) {
-      return res.status(404).json({ message: "Cannot find tradesPerPeriod" });
+      return res
+        .status(404)
+        .json({ message: "Cannot find candles per period" });
     }
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
-
-  tradesPerPeriodCumulative = {};
-  tradesPerPeriod.forEach((trade) => {
-    keyTime = String(trade.creationTime);
-    if (!(keyTime in tradesPerPeriodCumulative)) {
-      tradesPerPeriodCumulative[keyTime] = {
-        volumeBuy: 0,
-        volumeSell: 0,
-      };
-
-      if (trade.buyerMaker) {
-        tradesPerPeriodCumulative[keyTime].volumeSell =
-          tradesPerPeriodCumulative[keyTime].volumeSell + trade.volume;
-      } else {
-        tradesPerPeriodCumulative[keyTime].volumeBuy =
-          tradesPerPeriodCumulative[keyTime].volumeBuy + trade.volume;
-      }
-    }
-  });
-
-  Object.keys(tradesPerPeriodCumulative).forEach((creationTimeKey) => {
-    keyTime = creationTimeKey.slice(0, -3);
-    qtyMarketBuy = 0;
-    qtyMarketSell = 0;
-    volMarketBuy = tradesPerPeriodCumulative[creationTimeKey].volumeBuy;
-    volMarketSell = tradesPerPeriodCumulative[creationTimeKey].volumeSell;
-
-    if (volMarketBuy != 0) {
-      qtyMarketBuy = 1;
-    }
-    if (volMarketSell != 0) {
-      qtyMarketSell = 1;
-    }
-
-    if (!(keyTime in tradesRes)) {
-      tradesRes[keyTime] = {
-        qtyMarketBuy: 0,
-        qtyMarketSell: 0,
-        volMarketBuy: 0,
-        volMarketSell: 0,
-      };
-    }
-
-    tradesRes[keyTime].qtyMarketBuy =
-      tradesRes[keyTime].qtyMarketBuy + qtyMarketBuy;
-    tradesRes[keyTime].qtyMarketSell =
-      tradesRes[keyTime].qtyMarketSell + qtyMarketSell;
-    tradesRes[keyTime].volMarketBuy =
-      tradesRes[keyTime].volMarketBuy + volMarketBuy;
-    tradesRes[keyTime].volMarketSell =
-      tradesRes[keyTime].volMarketSell + volMarketSell;
-  });
 
   tradesResArr = [];
-  Object.keys(tradesRes).forEach((time) => {
+  candlesPerPeriod.forEach((candle) => {
     tradesResArr.push([
-      time,
-      tradesRes[time].qtyMarketBuy,
-      tradesRes[time].qtyMarketSell,
-      tradesRes[time].volMarketBuy,
-      tradesRes[time].volMarketSell,
+      candle.time,
+      candle.o,
+      candle.h,
+      candle.l,
+      candle.c,
+      candle.v,
+      candle.q - candle.mq,
+      candle.mq,
+      candle.v - candle.mv, //taker volume/market buy
+      candle.mv, //maker volume/market sell
     ]);
-  });
-
-  let tradesObject;
-  try {
-    tradesObject = await trade.find({
-      ticker: req.params.ticker,
-      time: {
-        $gte: tradesTime - 60000,
-        $lte: tradesTime,
-      },
-    });
-
-    if (tradesObject == null) {
-      return res.status(404).json({ message: "Cannot find tradesObject" });
-    }
-  } catch (err) {
-    return res.status(500).json({ message: err.message });
-  }
-  let tradesGraphArray = tradesObject.map(function (trade) {
-    return [
-      trade.time,
-      trade.price,
-      trade.volume,
-      1, // All deals quantity
-      trade.buyerMaker ? 1 : 0, // BuyerMaker deals quantity
-      trade.buyerMaker ? 0 : 1, // ! BuyerMaker deals quantity
-      trade.buyerMaker ? trade.volume : 0, // BuyerMaker deals vol
-      trade.buyerMaker ? 0 : trade.volume, // ! BuyerMaker deals vol
-    ];
   });
 
   res.result = {
@@ -226,7 +122,6 @@ async function getDepthWithActivity(req, res, next) {
     trades: tradesResArr.sort(function (a, b) {
       return Number(a[0]) - Number(b[0]);
     }),
-    tradesGraph: tradesGraphArray,
   };
 
   next();
