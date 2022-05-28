@@ -29,7 +29,7 @@ async function getDepthWithActivity(req, res, next) {
       .sort({ time: -1 })
       .limit(1);
     //.lean();
-    if (!depthObject[0]) {
+    if (!lastCandle[0]) {
       return res.status(404).json({ message: "Cannot find candle" });
     }
   } catch (err) {
