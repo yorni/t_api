@@ -22,8 +22,8 @@ app.use(function (req, res, next) {
   next();
 });
 
-const trades = require("./routes/trades");
-app.use("/trades", trades);
+const candles = require("./routes/candles");
+app.use("/candles", candles);
 const depth = require("./routes/depth");
 app.use("/depth", depth);
 const la = require("./routes/lastDepthWithActivity");
