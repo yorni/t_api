@@ -101,18 +101,20 @@ async function getDepthWithActivity(req, res, next) {
 
   tradesResArr = [];
   candlesPerPeriod.forEach((candle) => {
-    tradesResArr.push([
-      candle.time,
-      candle.o,
-      candle.h,
-      candle.l,
-      candle.c,
-      candle.v,
-      candle.q - candle.mq,
-      candle.mq,
-      candle.v - candle.mv, //taker volume/market buy
-      candle.mv, //maker volume/market sell
-    ]);
+    if (candle.o) {
+      tradesResArr.push([
+        candle.time,
+        candle.o,
+        candle.h,
+        candle.l,
+        candle.c,
+        candle.v,
+        candle.q - candle.mq,
+        candle.mq,
+        candle.v - candle.mv, //taker volume/market buy
+        candle.mv, //maker volume/market sell
+      ]);
+    }
   });
 
   res.result = {
