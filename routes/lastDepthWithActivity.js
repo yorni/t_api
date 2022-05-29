@@ -17,6 +17,7 @@ async function getDepthWithActivity(req, res, next) {
   let conditionsToFind = {
     ticker: req.params.ticker,
   };
+
   if (req.params.endtime != "0") {
     conditionsToFind.time = {
       $lte: Number(req.params.endtime),
@@ -101,6 +102,10 @@ async function getDepthWithActivity(req, res, next) {
 
   tradesResArr = [];
   candlesPerPeriod.forEach((candle) => {
+    if (candle.ticker != req.params.ticker) {
+      console.log(ticker);
+      console.log(req.params.ticker);
+    }
     if (candle.o) {
       tradesResArr.push([
         candle.time,
