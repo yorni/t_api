@@ -36,7 +36,8 @@ async function getDepthWithActivity(req, res, next) {
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
-
+  console.log(req.params.ticker);
+  console.log(lastCandle.ticker);
   let percent = req.params.percent;
   let multiplier = 1 + percent / 100;
   let divider = 1 - percent / 100;
