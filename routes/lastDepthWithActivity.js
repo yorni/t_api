@@ -36,8 +36,8 @@ async function getDepthWithActivity(req, res, next) {
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
-  console.log(req.params.ticker);
-  console.log(lastCandle[0].ticker);
+  // console.log(req.params.ticker);
+  // console.log(lastCandle[0].ticker);
   let percent = req.params.percent;
   let multiplier = 1 + percent / 100;
   let divider = 1 - percent / 100;
@@ -103,10 +103,10 @@ async function getDepthWithActivity(req, res, next) {
 
   tradesResArr = [];
   candlesPerPeriod.forEach((candle) => {
-    if (candle.ticker != req.params.ticker) {
-      console.log(ticker);
-      console.log(req.params.ticker);
-    }
+    // if (candle.ticker != req.params.ticker) {
+    //   console.log(ticker);
+    //   console.log(req.params.ticker);
+    // }
     if (candle.o) {
       tradesResArr.push([
         candle.time,
