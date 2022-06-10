@@ -50,33 +50,49 @@ async function getDepthWithActivity(req, res, next) {
 
   var BreakException = {};
   try {
-    Object.keys(lastCandle[0].bids).forEach((bid) => {
-      if (Number(bid) >= marketBid * divider) {
-        lBid = lastCandle[0].bids[bid];
-        lAsk = 0;
-        if (lastCandle[0].asks[bid]) {
-          lAsk = lastCandle[0].asks[bid];
-          delete lastCandle[0].asks[bid];
+    Object.keys(lastCandle[0].bids)
+      .sort(function (a, b) {
+        if (Number(a) <= Number(b)) {
+          return 1;
+        } else {
+          return -1;
         }
-        depthRes.push([bid, lBid, lAsk]);
-      } else {
-        throw BreakException;
-      }
-    });
+      })
+      .forEach((bid) => {
+        if (Number(bid) >= marketBid * divider) {
+          lBid = lastCandle[0].bids[bid];
+          lAsk = 0;
+          if (lastCandle[0].asks[bid]) {
+            lAsk = lastCandle[0].asks[bid];
+            delete lastCandle[0].asks[bid];
+          }
+          depthRes.push([bid, lBid, lAsk]);
+        } else {
+          throw BreakException;
+        }
+      });
   } catch (e) {
     if (e !== BreakException) throw e;
   }
 
   try {
-    Object.keys(lastCandle[0].asks).forEach((ask) => {
-      if (Number(ask) <= marketAsk * multiplier) {
-        lBid = 0;
-        lAsk = lastCandle[0].asks[ask];
-        depthRes.push([ask, lBid, lAsk]);
-      } else {
-        throw BreakException;
-      }
-    });
+    Object.keys(lastCandle[0].asks)
+      .sort(function (a, b) {
+        if (Number(a) <= Number(b)) {
+          return -1;
+        } else {
+          return 1;
+        }
+      })
+      .forEach((ask) => {
+        if (Number(ask) <= marketAsk * multiplier) {
+          lBid = 0;
+          lAsk = lastCandle[0].asks[ask];
+          depthRes.push([ask, lBid, lAsk]);
+        } else {
+          throw BreakException;
+        }
+      });
   } catch (e) {
     if (e !== BreakException) throw e;
   }
