@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const candle = require("../models/candle");
-const dealM = require("./models/deal");
+const dealM = require("../models/deal");
 //Get One
 router.get("/:ticker/:starttime/:endtime", getTrades, (req, res) => {
   res.json({ trades: res.trades, deals: res.deals });
