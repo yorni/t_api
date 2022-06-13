@@ -1,5 +1,3 @@
-"use strict";
-
 const fs = require("fs");
 require("dotenv").config();
 const mongoose = require("mongoose");
@@ -31,7 +29,8 @@ async function saveDeal(deal) {
   dealObject.profit = Number(deal.profit);
   try {
     const newdealObject = await dealObject.save();
-    console.log(newdealObject);
+    //console.log(newdealObject);
+    console.log("saved");
   } catch (err) {
     console.log("!!!!!!!!!!!!!!", err.message);
   }
