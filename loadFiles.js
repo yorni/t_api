@@ -12,7 +12,7 @@ db.once("open", () => console.log("connection to db established"));
 
 const dealM = require("./models/deal");
 
-let rawdata = fs.readFileSync("dealsComplete_1.json");
+let rawdata = fs.readFileSync("dealsComplete_2.json");
 let arrayOfDeals = JSON.parse(rawdata);
 arrayOfDeals.forEach((deal) => {
   saveDeal(deal);
