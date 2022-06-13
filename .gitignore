@@ -8,4 +8,5 @@ node_modules/
 .env.production.local
 .env.local
 *.csv
+*.json
 workspace.code-workspace
