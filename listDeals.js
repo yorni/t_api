@@ -15,7 +15,7 @@ dealM
     ticker: "GMTUSDT",
   })
   .sort({ timeOpen: 1 })
-  .than((dealsObject) => {
+  .then((dealsObject) => {
     dealsObject.forEach((deal) => {
       console.log(deal.timeOpen, deal.profit);
     });
