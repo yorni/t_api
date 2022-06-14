@@ -12,11 +12,7 @@ const dealM = require("./models/deal");
 
 dealM
   .find({
-    ticker: req.params.ticker,
-    timeOpen: {
-      $gte: Number(req.params.starttime),
-      $lte: Number(req.params.endtime),
-    },
+    ticker: "GMTUSDT",
   })
   .sort({ timeOpen: 1 })
   .than((dealsObject) => {
