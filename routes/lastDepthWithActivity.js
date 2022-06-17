@@ -88,7 +88,7 @@ async function getDepthWithActivity(req, res, next) {
         if (Number(ask) <= marketAsk * multiplier) {
           lBid = 0;
           lAsk = lastCandle[0].asks[ask];
-          depthRes.push([ask, lBid, lAsk]);
+          depthRes.push([ask, lBid, lAsk + 0.001]);
         } else {
           throw BreakException;
         }
