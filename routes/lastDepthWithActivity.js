@@ -66,7 +66,7 @@ async function getDepthWithActivity(req, res, next) {
             lAsk = lastCandle[0].asks[bid];
             delete lastCandle[0].asks[bid];
           }
-          depthRes.push([bid, lBid, lAsk + 0.001]);
+          depthRes.push([bid, lBid, lAsk]);
         } else {
           throw BreakException;
         }
@@ -88,7 +88,7 @@ async function getDepthWithActivity(req, res, next) {
         if (Number(ask) <= marketAsk * multiplier) {
           lBid = 0;
           lAsk = lastCandle[0].asks[ask];
-          depthRes.push([ask, lBid, lAsk + 0.001]);
+          depthRes.push([ask, lBid, lAsk]);
         } else {
           throw BreakException;
         }
