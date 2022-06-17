@@ -66,7 +66,7 @@ async function getDepthWithActivity(req, res, next) {
             lAsk = lastCandle[0].asks[bid];
             delete lastCandle[0].asks[bid];
           }
-          depthRes.push([bid, lBid, lAsk]);
+          depthRes.push([bid, lBid, lAsk + 0.001]);
         } else {
           throw BreakException;
         }
