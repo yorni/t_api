@@ -13,7 +13,7 @@ const candleM = require("./models/candle");
 candleM
   .find({
     ticker: "GMTUSDT",
-    time: { $gt: 1656830894261 },
+    time: { $gt: 1656841509636 },
   })
   .sort({ time: 1 })
   .lean()
