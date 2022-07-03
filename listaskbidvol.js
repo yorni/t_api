@@ -17,6 +17,7 @@ candleM
   })
   .sort({ time: 1 })
   .lean()
+  .limit(10000)
   .then((candlesObject) => {
     candlesObject.forEach((candle) => {
       console.log(
