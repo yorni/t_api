@@ -30,7 +30,9 @@ candleM
         candle.h,
         candle.l,
         candle.c,
-        candle.v
+        candle.v,
+        candle.lastBid,
+        candle.lastAsk
       );
     });
   });
