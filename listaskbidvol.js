@@ -16,6 +16,7 @@ candleM
     time: { $gt: 1656799200000 },
   })
   .sort({ time: 1 })
+  .lean()
   .then((candlesObject) => {
     candlesObject.forEach((candle) => {
       console.log(
